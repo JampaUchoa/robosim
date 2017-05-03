@@ -45,8 +45,11 @@ print "Initializing array"
 # O programa encontrara erros se passar desse tamanha
 # -x/2 -> x/2
 
-tileSize = 100
-mapSize = int((1.0 / tileSize) * 30 * 1000)
+goalX = 0
+goalY = 0
+
+tileSize = 500 # 50cm
+mapSize = int(30 * 1000 / tileSize) # 30m de largura maxima
 mapOffset = mapSize / 2
 explored = []
 
@@ -68,6 +71,8 @@ def isOccupied(x, y):
     print "" + str(int(x / tileSize + mapOffset)) + "," + str(int( y / tileSize + mapOffset)) + " is occupied"
   else:
     print "new"
+
+
 
 # Action that drives the robot forward, but stops if obstacles are
 # detected by sonar.
@@ -104,11 +109,12 @@ class ActionGo(ArAction):
       #print '    sonar sensed something at point ', p
       try:
          exploredInsert(p.x, p.y)
-         #if random.random() < 0.001:
-         #  print explored
-         #  print "="
+         if random.random() < 0.0005:
+           print explored
+           print "\n\n\n"
 
       except Exception, e:
+         print "Error trying to insert x: %d, y: %d -> x: %d, y: %d" % (p.x, p.y, int(p.x / tileSize + mapOffset), int(y / tileSize + mapOffset))
          print e
 
     # if the sonar is null we can't do anything, so deactivate
@@ -249,7 +255,6 @@ Aria_parseArgs()
 # Add the range device to the robot. You should add all the range
 # devices and such before you add actions
 robot.addRangeDevice(sonar)
-
 # Add our actions in order. The second argument is the priority,
 # with higher priority actions going first, and possibly pre-empting lower
 # priority actions.

@@ -10,4 +10,6 @@
 
   Outro problema de se implementar A* é que não sabemos (ou melhor, o robô) como é o ambiente aonde ele esta situado em relação a obstáculos, logo não é possível obter uma solução A* logo de inicio, teremos que fazer reconhecimento da area e para isso utilizar um array 2D da area que explorarmos.
 
-  O Array 2D é inicializado com todos valores "0", como se o mapa estivesse totalmente aberto, o robô seguira pelo caminho em linha reta ate o objetivo, e caso venha a encontrar um obstáculo ele tentará recalcular a rota ao objetivo, levando em conta o obstáculo.
+  O Array 2D é inicializado com todos valores "0", automaticamente o robo explora a area ao seu arredor e mapeia o espaço na array.
+
+  Implementaremos entao um algoritmo A* calculando a melhor rota do objetivo atual a o principal contando com os obstaculos existentes. A cada curva o algoritmo refaz a rota porque é de alta probabilidade que se encontre mais obstaculos novos, nao considerados, o robo recalculará tambem se este tiver movido alem do seu alcance do sensor.
