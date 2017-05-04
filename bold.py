@@ -1,7 +1,8 @@
 from __future__ import division # For correct float division in Python 2
 from AriaPy import *
 import sys
-import random
+
+debug = 1
 
 #
 # Aria Parameters
@@ -27,7 +28,7 @@ if not Aria_parseArgs():
 
 print "Initializing array"
 
-goal = {x: 0, y: 0}
+endGoal = {'x': 250, 'y': 0}
 
 
 tileSize = 500 # 50cm
@@ -52,7 +53,10 @@ def exploredInsert(x, y):
 
 #Recupera uma coordenada do array para real
 def getRealCoords(x, y):
-    return {x: (x - mapOffset) * tileSize + tileSize / 2.0, y: (y - mapOffset) * tileSize + tileSize / 2.0}
+    return {'x': (x - mapOffset) * tileSize + tileSize / 2.0, 'y': (y - mapOffset) * tileSize + tileSize / 2.0}
+
+def getArrayCoords(x, y):
+    return {'x': int(x / tileSize + mapOffset), 'y': int(y / tileSize + mapOffset)}
 
 robot.addRangeDevice(sonar)
 robot.runAsync(1)
@@ -85,41 +89,51 @@ ArLog.log(ArLog.Normal, "Going to four goals in turn for %d seconds, then cancel
 
 first = True
 goalNum = 0
-start = ArTime()
-start.setToNow()
+timer = ArTime()
+timer.setToNow()
+
+#
+# Hey now you are an A*
+#
+
+path = []
+finishAt = getArrayCoords(endGoal['x'], endGoal['y']);
+
+#
+# Main
+#
+gotoPoseAction.setGoal(ArPose(0, 200))
 
 while Aria.getRunning():
     robot.lock()
+
     poses = sonar.getCurrentBufferAsVector()
-#    print 'Sonar readings (%d) (Point coordinates in space):' % (len(poses))
     for p in poses:
-        #print '    sonar sensed something at point ', p
         try:
             exploredInsert(p.x, p.y)
-            if random.random() < 0.0005:
-                print explored
-                print "\n\n\n"
         except Exception, e:
             print "Error trying to insert x: %d, y: %d -> x: %d, y: %d" % (p.x, p.y, int(p.x / tileSize + mapOffset), int(y / tileSize + mapOffset))
             print e
 
-    if (first or gotoPoseAction.haveAchievedGoal()):
-        first = False;
-        goalNum = goalNum + 1
-        if (goalNum > 4):
-            goalNum = 1
-        if (goalNum == 1):
-            gotoPoseAction.setGoal(ArPose(2500, 0))
-        elif (goalNum == 2):
-            gotoPoseAction.setGoal(ArPose(2500, 2500))
-        elif (goalNum == 3):
-            gotoPoseAction.setGoal(ArPose(0, 2500))
-        elif (goalNum == 4):
-            gotoPoseAction.setGoal(ArPose(0, 0))
+    if (gotoPoseAction.haveAchievedGoal()):
+
+
+
+
+        # Se chegarmos no tile final
+        if (0):
+            gotoPoseAction.setGoal(ArPose(endGoal['x'], endGoal['y']))
+            ArUtil.sleep(2500)
+            robot.unlock()
+            break
+
         ArLog.log(ArLog.Normal, "Going to next goal at %.0f %.0f" % (gotoPoseAction.getGoal().getX(), gotoPoseAction.getGoal().getY()) );
 
-#    if (start.mSecSince() >= duration):
-#      ArLog.log(ArLog.Normal, "%d seconds have elapsed. Cancelling current goal, waiting 3 seconds, and exiting." % (duration/1000))
+    if (debug and timer.mSecSince() >= 5000):
+        print explored
+        print "\n\n\n"
+        timer.setToNow()
+
 #      gotoPoseAction.cancelGoal()
 #      robot.unlock()
 #      ArUtil.sleep(3000)
