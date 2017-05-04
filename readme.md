@@ -1,4 +1,8 @@
 # Projeto
+PIP HEAP
+
+sudo apt-get install python-pip -y
+pip install numpy
 
 ## Desafio
   Temos o objetivo de construir um algoritmo que mova um robô em um mapa de um ponto inicial ao seu objetivo no menor tempo.
