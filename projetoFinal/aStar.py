@@ -1,13 +1,13 @@
-from __future__ import division # For correct float division in Python 2
+from __future__ import division
 from AriaPy import *
 import sys
 import numpy
 from heapq import *
 
-debug = 0
+debug = 0 # Se verdadeiro, imprime o array do mapa.
 
 #
-# Aria Parameters
+# Parametros do aria
 #
 numpy.set_printoptions(threshold=numpy.inf)
 
@@ -58,15 +58,8 @@ robot.addRangeDevice(sonar)
 robot.runAsync(1)
 
 ##########
-# Actions
+# Acoes
 ##########
-
-#limiterAction = ArActionLimiterForwards("speed limiter near", 300, 600, 250)
-#limiterFarAction = ArActionLimiterForwards("speed limiter far", 300, 1100, 400)
-#tableLimiterAction = ArActionLimiterTableSensor()
-#robot.addAction(tableLimiterAction, 100)
-#robot.addAction(limiterAction, 95)
-#robot.addAction(limiterFarAction, 90)
 
 recover = ArActionStallRecover()
 robot.addAction(recover, 100)
@@ -84,15 +77,11 @@ robot.enableMotors()
 ##
 ##
 
-duration = 30000
-ArLog.log(ArLog.Normal, "Going to four goals in turn for %d seconds, then cancelling goal and exiting." % (duration/1000))
-
-goalNum = 0
 timer = ArTime()
 timer.setToNow()
 
 #
-# Hey now you are an A*
+# "Hey now you are an A*..."
 #
 
 path = []
@@ -149,8 +138,6 @@ def aStar(start):
 
     return False
 
-
-
 #
 # Main
 #
@@ -180,6 +167,7 @@ while Aria.getRunning():
             robot.unlock()
             break
 
+        # Caso contrario adiciona-se o proximo passo
         nextTile = path[-1]
         nextPos = getRealCoords(nextTile[0], nextTile[1]);
         nextPosEase = (nextPos[0] + (myPos.x % tileSize), nextPos[1] + (myPos.x % tileSize))
@@ -187,6 +175,7 @@ while Aria.getRunning():
 
         ArLog.log(ArLog.Normal, "Going to next goal at %.0f %.0f" % (gotoPoseAction.getGoal().getX(), gotoPoseAction.getGoal().getY()) );
 
+    # Imprimir array do mapa
     if (debug and timer.mSecSince() >= 5000):
         print explored
         print "\n\n\n"
@@ -194,6 +183,7 @@ while Aria.getRunning():
 
     distance = robot.findDistanceTo(ArPose(nextPos[0], nextPos[1]))
 
+    # Se aproximar da tile ou essa for revelada a parede calcular denovo
     if distance < tileSize / 2 or explored[nextTile[0]][nextTile[1]] == 1:
         gotoPoseAction.cancelGoal()
         reroute = True
